@@ -13,7 +13,7 @@ function _init()
 end
 
 function _update()
-
+	jg:mov()
 end
 
 function _draw()
@@ -29,15 +29,24 @@ function init_jg()
 	new_jg = {
 		x								 = 64,
 		y								 = 100,
+		w									=	8,
+		h									=	8,
 		cesta_s		 = 1,
 		jogador_s = 2,
-		
+		--desenha o jogador
  	des = function(self,xop,yop)
 		 aux_x,aux_y = xop or self.x,yop or self.y 
 
 	 	spr(self.cesta_s	 ,aux_x,aux_y-9)
 	 	spr(self.jogador_s,aux_x,aux_y)
-	 end,   
+	 end,
+	 --move o jogador
+ 	mov = function(self)
+			if(btn(⬅️)) self.x-=2
+			if(btn(➡️)) self.x+=2
+			nao_sai(self)
+	 end,
+	 
  }
 	return new_jg
 end
@@ -55,6 +64,13 @@ function init_frutas()
 	 end,
 	}
 	return frutas
+end
+-->8
+--utilitarios
+function nao_sai(self)
+	--nao sai horitzontal
+	if(self.x < 0)		self.x = 0
+	if(self.x+self.w > 128)self.x = 128 - self.w
 end
 __gfx__
 000000007000000770700707000110000090900000700700000006000100000000777d0000000000000000000000000000000000000000000000000000000000
