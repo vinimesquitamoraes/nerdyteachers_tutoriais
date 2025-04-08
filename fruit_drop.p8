@@ -3,25 +3,31 @@ version 41
 __lua__
 --anthony eu te amo
 function _init()
-	--objetos
-	jg = init_jg()
-	fr = init_frutas()
 	--variaveis de jogo
 	gravidade = 1
 	nivel				 = 1
 	pontos    = 0
+
+	--objetos
+	jg = init_jg()
+	fr = init_frutas()
+	
 end
 
 function _update()
 	jg:mov()
+	fr:update()
+
 end
 
 function _draw()
+	--[[
  cls()
  --terreno
  rectfill(0,108,127,127,3)
  --jogador
 	jg:des()
+	fr:des()
 end
 -->8
 --jogador
@@ -36,7 +42,6 @@ function init_jg()
 		--desenha o jogador
  	des = function(self,xop,yop)
 		 aux_x,aux_y = xop or self.x,yop or self.y 
-
 	 	spr(self.cesta_s	 ,aux_x,aux_y-9)
 	 	spr(self.jogador_s,aux_x,aux_y)
 	 end,
@@ -54,19 +59,62 @@ end
 --frutas
 function init_frutas()
 	frutas= {
-		start				 = 16,
-		cont						= 6,
-		intervalo = 16,
-		
- 	des = function(self,xop,yop)
-		 aux_x,aux_y = xop or self.x,yop or self.y 
-	 	spr(self.jogador_s,aux_x,aux_y)
+	 update = function(self)
+			for i in all(frutas)do
+				i.y+=gravidade
+				i:col(jg)
+			end
+			if #frutas==0 then
+    nivel+=1
+    init_frutas()
+			end
 	 end,
+
+ 	des = function(self,xop,yop)
+			foreach(frutas, function(obj) obj:des() end)
+	 end,
+	
 	}
+	
+	local start				 = 3
+	local cont						= 6
+	local intervalo = 16
+	
+ for i=1,nivel do
+  fruta={
+   s = flr(rnd(cont)+start),
+   x	= flr(rnd(120)+5),
+   y = i*(-intervalo),
+		--desenhar
+ 	des = function(self,xop,yop)
+		 aux_x,aux_y = xop or self.x, yop or self.y 
+	 	spr(self.s,aux_x,aux_y)
+	 end,
+	 
+	 col = function(self,jogador)
+		 if   self.y+4 >= jogador.y-8
+				and self.y+4 <= jogador.y
+				and self.x+4 >= jogador.x
+				and self.x+4 <= jogador.x+8
+		 then
+	   pontos+=1
+	   del(frutas,self)
+			end
+	 end
+  }
+  add(frutas,fruta)
+ end
+
 	return frutas
 end
 -->8
 --utilitarios
+function nao_sai(self)
+	--nao sai horitzontal
+	if(self.x < 0)		self.x = 0
+	if(self.x+self.w > 128)self.x = 128 - self.w
+end
+
 function nao_sai(self)
 	--nao sai horitzontal
 	if(self.x < 0)		self.x = 0
